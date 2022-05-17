@@ -15,8 +15,25 @@ app.get('/', (_request, response) => {
 });
 
 app.get('/talker', async (_request, response) => {
-  const dataTalker = await readFile();
-  response.status(HTTP_OK_STATUS).json(dataTalker);
+  try {
+    const dataTalker = await readFile('./talker.json');
+    response.status(HTTP_OK_STATUS).json(dataTalker);
+  } catch (error) {
+    return [];
+  }
+});
+
+app.get('/talker/:id', async (request, response) => {
+  const { id } = request.params;
+
+  const dataTalker = await readFile('./talker.json');
+  const talker = dataTalker.find((data) => data.id === +id);
+
+  if (!talker) {
+    response.status(404).send({ message: 'Pessoa palestrante não encontrada' });
+  }
+
+  response.status(HTTP_OK_STATUS).json(talker);
 });
 
 app.listen(PORT, () => {

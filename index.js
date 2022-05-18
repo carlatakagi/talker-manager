@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-
+const crypto = require('crypto');
 const { readFile } = require('./helpers');
 
 const app = express();
@@ -34,6 +34,14 @@ app.get('/talker/:id', async (request, response) => {
   }
 
   response.status(HTTP_OK_STATUS).json(talker);
+});
+
+app.post('/login', (_request, response) => {
+  const generatedToken = crypto.randomBytes(8).toString('hex');
+
+  if (!generatedToken) return response.status(404).json();
+
+  response.status(HTTP_OK_STATUS).json({ token: generatedToken });
 });
 
 app.listen(PORT, () => {

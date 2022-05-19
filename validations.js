@@ -1,9 +1,11 @@
+// regex https://www.horadecodar.com.br/2020/09/13/como-validar-email-com-javascript/
 const emailValidation = (request, response, next) => {
   const { email } = request.body;
-  const regex = /^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$/;
+  const regex = /\S+@\S+\.\S+/;
   const regexEmail = regex.test(email);
 
-  if (email === undefined || email === '') {
+  // no postman nao identifica o email
+  if (!email || email === '') {
     return response.status(400).send({ message: 'O campo "email" é obrigatório' });
   }
 

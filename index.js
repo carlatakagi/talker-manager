@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
 const { readFile } = require('./helpers');
+const { emailValidation, passwordValidation } = require('./validations');
 
 const app = express();
 app.use(bodyParser.json());
@@ -36,7 +37,8 @@ app.get('/talker/:id', async (request, response) => {
   response.status(HTTP_OK_STATUS).json(talker);
 });
 
-app.post('/login', (_request, response) => {
+// crypto - explicado no AMA de Node.js no dia 18/05/2022
+app.post('/login', emailValidation, passwordValidation, (_request, response) => {
   const generatedToken = crypto.randomBytes(8).toString('hex');
 
   if (!generatedToken) return response.status(404).json();

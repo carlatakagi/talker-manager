@@ -88,6 +88,15 @@ app.put('/talker/:id', tokenValidation, nameValidation, ageValidation,
   response.status(200).json(arrTalkers[talkerIndex]);
 });
 
+app.delete('/talker/:id', tokenValidation, async (request, response) => {
+  const { id } = request.params;
+  const arrTalkers = await readFile();
+  const deleteTalkerById = arrTalkers.filter((talker) => talker.id === id);
+
+  await writeFile(deleteTalkerById);
+  response.status(204).end();
+});
+
 app.listen(PORT, () => {
   console.log('Online');
 });

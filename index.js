@@ -6,9 +6,11 @@ const {
   emailValidation,
   passwordValidation,
   tokenValidation,
-  nameAndAgeValidation,
+  nameValidation,
+  ageValidation,
   talkValidation,
-  watchedAtAndRateValidation,
+  watchedAtValidation,
+  rateValidation,
 } = require('./validations');
 
 const app = express();
@@ -53,8 +55,9 @@ app.post('/login', emailValidation, passwordValidation, (_request, response) => 
   response.status(HTTP_OK_STATUS).json({ token: generatedToken });
 });
 
-app.post('/talker', tokenValidation, nameAndAgeValidation, talkValidation,
-  watchedAtAndRateValidation, async (request, response) => {
+app.post('/talker', tokenValidation, nameValidation,
+  ageValidation, talkValidation, rateValidation, watchedAtValidation,
+  async (request, response) => {
   const { name, age, talk } = request.body;
   const arrTalkers = await readFile();
 
@@ -68,6 +71,21 @@ app.post('/talker', tokenValidation, nameAndAgeValidation, talkValidation,
   await writeFile([...arrTalkers, newTalkers]);
 
   response.status(201).json(newTalkers);
+});
+
+app.put('/talker/:id', tokenValidation, nameValidation, ageValidation,
+  talkValidation, watchedAtValidation, rateValidation,
+  async (request, response) => {
+  const { id } = request.params;
+  const { name, age, talk } = request.body;
+  const arrTalkers = await readFile();
+  const talkerIndex = arrTalkers.findIndex((talker) => talker.id === parseInt(id, 0));
+
+  arrTalkers[talkerIndex] = { ...arrTalkers[talkerIndex], name, age, talk };
+  
+  await writeFile(arrTalkers);
+
+  response.status(200).json(arrTalkers[talkerIndex]);
 });
 
 app.listen(PORT, () => {

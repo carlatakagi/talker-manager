@@ -4,7 +4,6 @@ const emailValidation = (request, response, next) => {
   const regex = /\S+@\S+\.\S+/;
   const regexEmail = regex.test(email);
 
-  // ver na mentoria => no postman nao identifica o email
   if (!email) {
     return response.status(400).send({ message: 'O campo "email" é obrigatório' });
   }
@@ -48,8 +47,8 @@ const tokenValidation = (request, response, next) => {
   next();
 };
 
-const nameAndAgeValidation = (request, response, next) => {
-  const { name, age } = request.body;
+const nameValidation = (request, response, next) => {
+  const { name } = request.body;
 
   if (!name) {
     return response.status(400).send({ message: 'O campo "name" é obrigatório' });
@@ -57,6 +56,13 @@ const nameAndAgeValidation = (request, response, next) => {
   if (name.length < 3) {
     return response.status(400).send({ message: 'O "name" deve ter pelo menos 3 caracteres' });
   }
+
+  next();
+};
+
+const ageValidation = (request, response, next) => {
+  const { age } = request.body;
+
   if (!age) {
     return response.status(400).send({ message: 'O campo "age" é obrigatório' });
   }
@@ -67,29 +73,10 @@ const nameAndAgeValidation = (request, response, next) => {
   next();
 };
 
-const watchedAtAndRateValidation = (request, response, next) => {
-  const { talk } = request.body;
-
-  const regexDate = /^(0?[1-9]|[12][0-9]|3[01])[/](0?[1-9]|1[012])[/]\d{4}$/;
-  const regexDateTest = regexDate.test(talk.watchedAt);
-
-  if (!regexDateTest) {
-    return response.status(400).json({
-      message: 'O campo "watchedAt" deve ter o formato "dd/mm/aaaa"',
-    });
-  }
-
-  if (talk.rate < 1 || talk.rate > 5) {
-    return response.status(400).send({ message: 'O campo "rate" deve ser um inteiro de 1 à 5' });
-  }
-
-  next();
-};
-
 const talkValidation = (request, response, next) => {
   const { talk } = request.body;
 
-  if (!talk || !talk.rate || !talk.watchedAt) {
+  if (!talk || talk.rate === undefined || !talk.watchedAt) {
     return response.status(400).send({
       message: 'O campo "talk" é obrigatório e "watchedAt" e "rate" não podem ser vazios',
     });
@@ -98,11 +85,38 @@ const talkValidation = (request, response, next) => {
   next();
 };
 
+const watchedAtValidation = (request, response, next) => {
+  const { talk } = request.body;
+
+  const regexDate = /^(0?[1-9]|[12][0-9]|3[01])[/](0?[1-9]|1[012])[/]\d{4}$/;
+  const regexDateTest = regexDate.test(talk.watchedAt);
+  
+  if (!regexDateTest || regexDateTest === '') {
+    return response.status(400).json({
+      message: 'O campo "watchedAt" deve ter o formato "dd/mm/aaaa"',
+    });
+  }
+  
+  next();
+};
+
+const rateValidation = (request, response, next) => {
+  const { talk } = request.body;
+
+  if (talk.rate < 1 || talk.rate > 5) {
+    return response.status(400).send({ message: 'O campo "rate" deve ser um inteiro de 1 à 5' });
+  }
+
+  next();
+};
+
 module.exports = {
   emailValidation,
   passwordValidation,
   tokenValidation,
-  nameAndAgeValidation,
+  nameValidation,
+  ageValidation,
   talkValidation,
-  watchedAtAndRateValidation,
+  watchedAtValidation,
+  rateValidation,
 };

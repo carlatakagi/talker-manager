@@ -1,8 +1,15 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
-const { readFile } = require('./helpers');
-const { emailValidation, passwordValidation } = require('./validations');
+const { readFile, writeFile } = require('./helpers');
+const {
+  emailValidation,
+  passwordValidation,
+  tokenValidation,
+  nameAndAgeValidation,
+  talkValidation,
+  watchedAtAndRateValidation,
+} = require('./validations');
 
 const app = express();
 app.use(bodyParser.json());
@@ -44,6 +51,23 @@ app.post('/login', emailValidation, passwordValidation, (_request, response) => 
   if (!generatedToken) return response.status(404).json();
 
   response.status(HTTP_OK_STATUS).json({ token: generatedToken });
+});
+
+app.post('/talker', tokenValidation, nameAndAgeValidation, talkValidation,
+  watchedAtAndRateValidation, async (request, response) => {
+  const { name, age, talk } = request.body;
+  const arrTalkers = await readFile();
+
+  const newTalkers = {
+    name,
+    age,
+    id: Math.max(...arrTalkers.map((talker) => talker.id)) + 1,
+    talk,
+  };
+
+  await writeFile([...arrTalkers, newTalkers]);
+
+  response.status(201).json(newTalkers);
 });
 
 app.listen(PORT, () => {
